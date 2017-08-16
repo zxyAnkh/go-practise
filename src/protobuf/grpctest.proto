@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package protobuf;
+
+message request{
+	string str = 1;
+}
+
+message response{
+	string str = 1;
+}
+
+service Hello{
+	rpc SayHello (request) returns (response) {}
+}
