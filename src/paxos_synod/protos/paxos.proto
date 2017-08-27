@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+/**
+* the scene is from lamport-paxos, The single-Decree Synod
+* and I change some details.
+* see more http://lamport.azurewebsites.net/pubs/lamport-paxos.pdf
+*/
+package protos;
+
+/**
+* id means b(a new ballot number)
+* minId means v(the maxVote(b, q, B)), q is the priest
+	, B is the set of ballots.
+* 
+*/
+
+message NextBallot{
+	uint32 id = 1;
+}
+
+message LastVote{
+	uint32 id = 1;
+	uint32 minId = 2;
+}
+
+message BeginBallot{
+	uint32 id = 1;
+	string decree = 2;
+}
+
+message Voted{
+	bool vote = 1;
+	uint32 id = 2;
+	string priest = 3;
+}
+
+message Success{
+	string decree = 1;
+}
+
+message Leger{
+	map<uint32, string> values = 1;
+}
+
+message Empty{
+
+}
+
+service Paxos{
+	rpc DealPreBallot (NextBallot) returns (LastVote) {}
+	rpc DealBallot (BeginBallot) returns (Voted) {}
+	rpc RecordDecree (Success) returns (Empty) {}
+	rpc Synchronize (Leger) returns (Leger) {}
+}
