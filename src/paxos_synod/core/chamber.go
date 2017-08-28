@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
+	"net/http"
 )
 
 type Chamber struct {
@@ -17,7 +18,7 @@ func NewChamber() *Chamber {
 }
 
 func (c *Chamber) StartServer(ip, port string) {
-	lis, err := net.Listen("tcp", ":"+port)
+	lis, err := net.Listen("tcp", ip+":"+port)
 	if err != nil {
 		fmt.Errorf("Start server error: %v\n", err)
 	}
@@ -27,6 +28,18 @@ func (c *Chamber) StartServer(ip, port string) {
 	if err := server.Serve(lis); err != nil {
 		fmt.Errorf("error: %v\n", err)
 	}
+}
+
+func (c *Chamber) StartHttpServer(id int, ip, port string) {
+	http.HandleFunc("/synod/"+fmt.Sprintf("%d", id)+"/", ChamberHttpServer)
+	err := http.ListenAndServe(ip+":"+port, nil)
+	if err != nil {
+		fmt.Errorf("Error: %v\n", err)
+	}
+}
+
+func ChamberHttpServer(w http.ResponseWriter, req *http.Request) {
+	fmt.Println("Hello World")
 }
 
 func (c *Chamber) DealPreBallot(ctx context.Context, in *pb.NextBallot) (*pb.LastVote, error) {
