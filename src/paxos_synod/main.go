@@ -3,7 +3,6 @@ package main
 import (
 	"./config"
 	"./core"
-	db "./core/db"
 	"flag"
 	"fmt"
 	"strings"
@@ -16,11 +15,6 @@ var (
 )
 
 func main() {
-	db.InsertLeger(core.LegerItem{
-		Id:     1,
-		Decree: "2222",
-	})
-	fmt.Println(db.FindOneLegerItem())
 	parseArguments()
 	paxosConfig, err := config.GetPaxosConfig(configPath)
 	if err != nil {
