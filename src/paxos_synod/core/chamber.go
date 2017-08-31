@@ -61,7 +61,8 @@ func (c *Chamber) Synchronize(ctx context.Context, in *pb.Leger) (*pb.Leger, err
 
 /*********************************
 *************HTTP Server**********
-*********************************/
+**********************************
+*the way to produce a new decree*/
 func (c *Chamber) StartHttpServer(id int, ip, port string) {
 	http.HandleFunc("/synod/"+fmt.Sprintf("%d", id)+"/", ChamberHttpServer)
 	err := http.ListenAndServe(ip+":"+port, nil)

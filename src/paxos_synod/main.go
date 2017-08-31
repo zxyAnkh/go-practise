@@ -3,6 +3,7 @@ package main
 import (
 	"./config"
 	"./core"
+	db "./core/db"
 	"flag"
 	"fmt"
 	"strings"
@@ -15,6 +16,11 @@ var (
 )
 
 func main() {
+	db.InsertLeger(core.LegerItem{
+		Id:     1,
+		Decree: "2222",
+	})
+	fmt.Println(db.FindOneLegerItem())
 	parseArguments()
 	paxosConfig, err := config.GetPaxosConfig(configPath)
 	if err != nil {
@@ -24,6 +30,10 @@ func main() {
 	for k, v := range paxosConfig.Paxos.Node {
 		nstrs := strings.Split(v, ":")
 		nodes[k] = core.NewNodeInfo(k+1, nstrs[0], nstrs[1], nstrs[2], nstrs[3])
+	}
+	if len(nodes) == 0 {
+		fmt.Println("No node info, exit.")
+		return
 	}
 	chamber := core.NewChamber()
 	go chamber.StartServer(nodes[id-1].Ip, nodes[id-1].ServerPort)
