@@ -13,3 +13,4 @@ gRPC 相关练习
 -------------------
 参考lamport-paxos论文中的single-decree-synod章节
 简单的一个paxos算法实现
+see more details at paxos_synod/README
