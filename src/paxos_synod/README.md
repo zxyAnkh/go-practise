@@ -4,11 +4,13 @@
 主要用到的技术分别是 [MonogoDB](https://docs.mongodb.com/manual/), [Protobuf](https://developers.google.com/protocol-buffers/), [gRPC](https://grpc.io/docs/quickstart/go.html)，具体的使用可以参考各自的官网。
 
 下载后使用需要先安装MongoDB，并下载相关依赖
-<code>go get gopkg.in/mgo.v2</code>
-<code>go get gopkg.in/mgo.v2/bson</code>
-<code>go get google.golang.org/grpc</code>
-<code>go get code.google.com/p/goprotobuf/{proto,protoc-gen-go}</code>
-<code>go install  code.google.com/p/goprotobuf/proto</code>
+```
+$go get gopkg.in/mgo.v2</code>
+$go get gopkg.in/mgo.v2/bson</code>
+$go get google.golang.org/grpc</code>
+$go get code.google.com/p/goprotobuf/{proto,protoc-gen-go}
+$go install  code.google.com/p/goprotobuf/proto
+```
 
 ####Paxos具体过程
 ------------------------
