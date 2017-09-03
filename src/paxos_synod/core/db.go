@@ -1,7 +1,6 @@
-package db
+package core
 
 import (
-	"../../core"
 	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -17,7 +16,7 @@ const (
 /*********************
 *********Leger********
 *********************/
-func InsertLegerItem(item core.LegerItem) error {
+func InsertLegerItem(item LegerItem) error {
 	session, err := mgo.Dial(db_server)
 	if err != nil {
 		panic(err)
@@ -32,7 +31,7 @@ func InsertLegerItem(item core.LegerItem) error {
 	return nil
 }
 
-func FindOneLegerItemById(id uint) (core.LegerItem, error) {
+func FindOneLegerItemById(id uint) (LegerItem, error) {
 	session, err := mgo.Dial(db_server)
 	if err != nil {
 		panic(err)
@@ -40,7 +39,7 @@ func FindOneLegerItemById(id uint) (core.LegerItem, error) {
 	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
 	c := session.DB(db).C(collec_leger)
-	result := core.LegerItem{}
+	result := LegerItem{}
 	err = c.Find(bson.M{"id": id}).One(&result)
 	if err != nil {
 		return result, fmt.Errorf("Find one leger item by id error: %v\n", err)
@@ -48,7 +47,7 @@ func FindOneLegerItemById(id uint) (core.LegerItem, error) {
 	return result, nil
 }
 
-func FindAllLegerItem() (core.Leger, error) {
+func FindAllLegerItem() (Leger, error) {
 	session, err := mgo.Dial(db_server)
 	if err != nil {
 		panic(err)
@@ -56,8 +55,8 @@ func FindAllLegerItem() (core.Leger, error) {
 	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
 	c := session.DB(db).C(collec_leger)
-	leger := core.Leger{}
-	result := []core.LegerItem{}
+	leger := Leger{}
+	result := []LegerItem{}
 	err = c.Find(bson.M{}).All(&result)
 	if err != nil {
 		return leger, fmt.Errorf("Find all leger item error: %v\n", err)
@@ -69,7 +68,7 @@ func FindAllLegerItem() (core.Leger, error) {
 /*********************
 *********Note*********
 *********************/
-func InsertNote(note core.Note) error {
+func InsertNote(note Note) error {
 	session, err := mgo.Dial(db_server)
 	if err != nil {
 		panic(err)
@@ -99,7 +98,7 @@ func DeleteNoteById(id uint) error {
 	return nil
 }
 
-func UpdateNote(note core.Note) error {
+func UpdateNote(oldNote, newNote Note) error {
 	session, err := mgo.Dial(db_server)
 	if err != nil {
 		panic(err)
@@ -107,14 +106,15 @@ func UpdateNote(note core.Note) error {
 	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
 	c := session.DB(db).C(collec_note)
-	err = c.Update(bson.M{"id": note.Id, "decree": note.Decree, "priest": note.Priest})
+	err = c.Update(bson.M{"id": oldNote.Id, "decree": oldNote.Decree, "priest": oldNote.Priest},
+		bson.M{"$set": bson.M{"id": newNote.Id, "decree": newNote.Decree, "priest": newNote.Priest}})
 	if err != nil {
 		return fmt.Errorf("Update note error: %v\n", err)
 	}
 	return nil
 }
 
-func FindOneNoteById(id uint) (core.Note, error) {
+func FindOneNoteById(id uint) (Note, error) {
 	session, err := mgo.Dial(db_server)
 	if err != nil {
 		panic(err)
@@ -122,7 +122,7 @@ func FindOneNoteById(id uint) (core.Note, error) {
 	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
 	c := session.DB(db).C(collec_note)
-	result := core.Note{}
+	result := Note{}
 	err = c.Find(bson.M{"id": id}).One(&result)
 	if err != nil {
 		return result, fmt.Errorf("Find one note by id error: %v\n", err)
@@ -130,7 +130,7 @@ func FindOneNoteById(id uint) (core.Note, error) {
 	return result, nil
 }
 
-func FindAllNote() ([]core.Note, error) {
+func FindAllNote() ([]Note, error) {
 	session, err := mgo.Dial(db_server)
 	if err != nil {
 		panic(err)
@@ -138,7 +138,7 @@ func FindAllNote() ([]core.Note, error) {
 	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
 	c := session.DB(db).C(collec_note)
-	result := []core.Note{}
+	result := []Note{}
 	err = c.Find(bson.M{}).All(&result)
 	if err != nil {
 		return result, fmt.Errorf("Find all note error: %v\n", err)

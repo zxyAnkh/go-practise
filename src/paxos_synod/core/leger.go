@@ -16,6 +16,7 @@ type Leger struct {
 /***********************************
 ********Leger Item functions********
 ************************************/
+
 func NewLegerItem(id uint, decree string) *LegerItem {
 	return &LegerItem{
 		Id:     id,
@@ -23,15 +24,28 @@ func NewLegerItem(id uint, decree string) *LegerItem {
 	}
 }
 
+func (li *LegerItem) equals(item LegerItem) bool {
+	return item.Id == li.Id && item.Decree == li.Decree
+}
+
 /***********************************
 ************Leger functions*********
 ************************************/
-func NewLeger(items []LegerItem) *Leger {
-	return &Leger{
-		Items: items,
+
+// read leger from db
+func InitLeger() (*Leger, error) {
+	newLeger := &Leger{}
+	oldLeger, err := FindAllLegerItem()
+	if err != nil {
+		return newLeger, err
 	}
+	newLeger.Items = oldLeger.Items
+	return newLeger, nil
 }
 
+// add item to leger
+// the leger initialize length is 5
+// capacity will double if the length equals capacity
 func (l *Leger) AddItem(item LegerItem) error {
 	if exists, _ := l.ContainsItem(item); exists == true {
 		return fmt.Errorf("Item %v is exists.\n", item)
@@ -50,6 +64,7 @@ func (l *Leger) AddItem(item LegerItem) error {
 	return nil
 }
 
+// judge whether the item is in leger
 func (l *Leger) ContainsItem(item LegerItem) (bool, error) {
 	for _, v := range l.Items {
 		if v.Id == item.Id && v.Decree == item.Decree {

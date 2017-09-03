@@ -18,10 +18,25 @@ func NewChamber() *Chamber {
 	return &Chamber{}
 }
 
+var (
+	leger Leger
+	notes []Note
+)
+
 /*********************************
 *************gRPC Server**********
 *********************************/
 func (c *Chamber) StartServer(ip, port string) {
+	leger, err := InitLeger()
+	if err != nil {
+		fmt.Errorf("Init leger error: %v\n", err)
+		return
+	}
+	notes, err = InitNote()
+	if err != nil {
+		fmt.Errorf("Init notes error: %v\n", err)
+		return
+	}
 	lis, err := net.Listen("tcp", ip+":"+port)
 	if err != nil {
 		fmt.Errorf("Start server error: %v\n", err)
@@ -85,6 +100,7 @@ func ChamberHttpServer(w http.ResponseWriter, req *http.Request) {
 			fmt.Errorf("Get content from body error: %v\n", err)
 		}
 		fmt.Println("content is :", content)
+
 	}
 }
 
