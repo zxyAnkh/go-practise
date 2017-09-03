@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"os"
 
 	pb "../protobuf"
 	"golang.org/x/net/context"
@@ -13,28 +12,24 @@ type Messenger struct {
 	Destination []NodeInfo
 }
 
-func NewMessager(destinations []NodeInfo) *Messenger {
+func NewMessenger(destinations []NodeInfo) *Messenger {
 	return &Messenger{
 		Destination: destinations,
 	}
 }
 
-func InitMessager() {
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
+func (m *Messenger) SendPreBallot(dest NodeInfo, id uint) {
+	// Set up a connection to the server.
+	conn, err := grpc.Dial(dest.Ip+":"+dest.ServerPort, grpc.WithInsecure())
 	if err != nil {
-		fmt.Printf("did not connect: %v\n", err)
+		fmt.Printf("Connect to %s error: %v\n", dest.Ip+":"+dest.ServerPort, err)
 	}
 	defer conn.Close()
-	c := pb.NewHelloClient(conn)
+	c := pb.NewPaxosClient(conn)
 
-	// Contact the server and print out its response.
-	name := defaultName
-	if len(os.Args) > 1 {
-		name = os.Args[1]
-	}
-	r, err := c.SayHello(context.Background(), &pb.Request{Str: name})
+	r, err := c.DealPreBallot(context.Background(), &pb.NextBallot{Id: uint(id)})
 	if err != nil {
-		fmt.Printf("could not greet: %v\n", err)
+		fmt.Printf("Could not greet: %v\n", err)
 	}
-	fmt.Printf("Greeting: %s\n", r.Str)
+	fmt.Println(r)
 }
