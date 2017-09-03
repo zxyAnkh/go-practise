@@ -29,9 +29,12 @@ func main() {
 		fmt.Println("No node info, exit.")
 		return
 	}
-	chamber := core.NewChamber()
-	go chamber.StartServer(nodes[id-1].Ip, nodes[id-1].ServerPort)
-	chamber.StartHttpServer(id, nodes[id-1].Ip, nodes[id-1].HttpPort)
+	err = core.InitPriest(id)
+	if err != nil {
+		fmt.Printf("Init priest information error: %v\n", err)
+		return
+	}
+	core.InitChamber(nodes[id-1].Ip, nodes[id-1].ServerPort, nodes[id-1].HttpPort)
 }
 
 func parseArguments() {

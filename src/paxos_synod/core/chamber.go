@@ -18,25 +18,16 @@ func NewChamber() *Chamber {
 	return &Chamber{}
 }
 
-var (
-	leger Leger
-	notes []Note
-)
+func InitChamber(ip, serverPort, httpPort string) {
+	chamber := NewChamber()
+	go chamber.StartServer(ip, serverPort)
+	chamber.StartHttpServer(ip, httpPort)
+}
 
 /*********************************
 *************gRPC Server**********
 *********************************/
 func (c *Chamber) StartServer(ip, port string) {
-	leger, err := InitLeger()
-	if err != nil {
-		fmt.Errorf("Init leger error: %v\n", err)
-		return
-	}
-	notes, err = InitNote()
-	if err != nil {
-		fmt.Errorf("Init notes error: %v\n", err)
-		return
-	}
 	lis, err := net.Listen("tcp", ip+":"+port)
 	if err != nil {
 		fmt.Errorf("Start server error: %v\n", err)
@@ -78,8 +69,8 @@ func (c *Chamber) Synchronize(ctx context.Context, in *pb.Leger) (*pb.Leger, err
 *************HTTP Server**********
 **********************************
 *the way to produce a new decree*/
-func (c *Chamber) StartHttpServer(id int, ip, port string) {
-	http.HandleFunc("/synod/"+fmt.Sprintf("%d", id)+"/", ChamberHttpServer)
+func (c *Chamber) StartHttpServer(ip, port string) {
+	http.HandleFunc("/synod/"+fmt.Sprintf("%d", the_Priest.Id)+"/", ChamberHttpServer)
 	err := http.ListenAndServe(ip+":"+port, nil)
 	if err != nil {
 		fmt.Errorf("Error: %v\n", err)

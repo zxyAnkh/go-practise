@@ -14,6 +14,6 @@ func NewNote(id uint, decree string, priest int) *Note {
 	}
 }
 
-func InitNote() ([]Note, error) {
+func InitNote() (*[]Note, error) {
 	return FindAllNote()
 }

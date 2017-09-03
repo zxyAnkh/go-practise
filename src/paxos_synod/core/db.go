@@ -130,7 +130,7 @@ func FindOneNoteById(id uint) (Note, error) {
 	return result, nil
 }
 
-func FindAllNote() ([]Note, error) {
+func FindAllNote() (*[]Note, error) {
 	session, err := mgo.Dial(db_server)
 	if err != nil {
 		panic(err)
@@ -141,7 +141,7 @@ func FindAllNote() ([]Note, error) {
 	result := []Note{}
 	err = c.Find(bson.M{}).All(&result)
 	if err != nil {
-		return result, fmt.Errorf("Find all note error: %v\n", err)
+		return &result, fmt.Errorf("Find all note error: %v\n", err)
 	}
-	return result, nil
+	return &result, nil
 }
