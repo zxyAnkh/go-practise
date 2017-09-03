@@ -29,7 +29,7 @@ func main() {
 		fmt.Println("No node info, exit.")
 		return
 	}
-	err = core.InitPriest(id)
+	err = core.InitPriest(id, nodes)
 	if err != nil {
 		fmt.Printf("Init priest information error: %v\n", err)
 		return

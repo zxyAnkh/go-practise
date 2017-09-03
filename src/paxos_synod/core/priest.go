@@ -1,6 +1,7 @@
 package core
 
 import (
+	pb "../protos"
 	"fmt"
 )
 
@@ -19,7 +20,7 @@ var (
 	finished bool = false
 )
 
-func InitPriest(id int, nodes []NodeInfo) error {
+func InitPriest(id int, nodes []*NodeInfo) error {
 	leger, err := InitLeger()
 	if err != nil {
 		return fmt.Errorf("Init leger error: %v\n", err)
@@ -32,7 +33,7 @@ func InitPriest(id int, nodes []NodeInfo) error {
 	i := 0
 	for k, v := range nodes {
 		if k != id {
-			destinations[i], i = v, i+1
+			destinations[i], i = *v, i+1
 		}
 	}
 	the_Priest = Priest{
@@ -55,6 +56,16 @@ func (p *Priest) dealNewBallotRequest(decree string) {
 	exists = ContainsNote(*p.Notes, decree)
 	if exists {
 		return
+	}
+	var err error
+	lastVotes := make([]pb.LastVote, len(p.Messenger.Destination))
+	for k, v := range p.Messenger.Destination {
+		lastVotes[k], err = p.Messenger.SendPreBallot(v, &pb.NextBallot{
+			Id: 1,
+		})
+		if err != nil {
+			fmt.Printf("Can't get message from %s, error: %v\n", v.Ip+":"+v.ServerPort, err)
+		}
 	}
 }
 
