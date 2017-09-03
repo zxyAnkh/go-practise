@@ -73,3 +73,13 @@ func (l *Leger) ContainsItem(item LegerItem) (bool, error) {
 	}
 	return false, nil
 }
+
+// judge whether the decree is in leger
+func (l *Leger) ContainsDecree(decree string) bool {
+	for _, v := range l.Items {
+		if decree == v.Decree {
+			return true
+		}
+	}
+	return false
+}

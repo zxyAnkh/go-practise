@@ -17,3 +17,12 @@ func NewNote(id uint, decree string, priest int) *Note {
 func InitNote() (*[]Note, error) {
 	return FindAllNote()
 }
+
+func ContainsNote(notes []Note, decree string) bool {
+	for _, v := range notes {
+		if v.Decree == decree {
+			return true
+		}
+	}
+	return false
+}

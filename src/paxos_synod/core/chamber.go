@@ -86,12 +86,12 @@ func ChamberHttpServer(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			fmt.Errorf("Read body from request error: %v\n", err)
 		}
-		content, err := getDecreeContent(buf)
+		decree, err := getDecreeContent(buf)
 		if err != nil {
-			fmt.Errorf("Get content from body error: %v\n", err)
+			fmt.Errorf("Get decree from body error: %v\n", err)
 		}
-		fmt.Println("content is :", content)
-
+		fmt.Println("Decree is :", decree)
+		the_Priest.dealNewBallotRequest(decree)
 	}
 }
 
