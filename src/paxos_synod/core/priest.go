@@ -32,8 +32,9 @@ func InitPriest(id int, nodes []*NodeInfo) error {
 	destinations := make([]NodeInfo, len(nodes)-1)
 	i := 0
 	for k, v := range nodes {
-		if k != id {
-			destinations[i], i = *v, i+1
+		if k+1 != id {
+			destinations[i] = *v
+			i++
 		}
 	}
 	the_Priest = Priest{
@@ -60,6 +61,15 @@ func (p *Priest) dealNewBallotRequest(decree string) {
 	finished = false
 	var err error
 	var id uint32 = the_Priest.genreateBallotId()
+	err = InsertNote(Note{
+		Id:     id,
+		Decree: decree,
+		Priest: int(the_Priest.Id),
+	})
+	p.Notes, err = InitNote()
+	if err != nil {
+		return
+	}
 	lastVotes := make([]*pb.LastVote, len(p.Messenger.Destination))
 	for k, v := range p.Messenger.Destination {
 		lastVotes[k], err = p.Messenger.SendPreBallot(v, &pb.NextBallot{
@@ -69,6 +79,9 @@ func (p *Priest) dealNewBallotRequest(decree string) {
 		if err != nil {
 			fmt.Printf("Can't get message from %s, error: %v\n", v.Ip+":"+v.ServerPort, err)
 		}
+	}
+	if float32(len(lastVotes))/float32(len(p.Messenger.Destination)) > 0.5 {
+		fmt.Println("Receive over 50 precent priests' response")
 	}
 }
 
@@ -85,5 +98,11 @@ func (p *Priest) dealRecordDecree() {
 }
 
 func (p *Priest) genreateBallotId() uint32 {
-	return 0
+	var maxId uint32 = 0
+	for _, v := range *p.Notes {
+		if v.Id > maxId {
+			maxId = v.Id
+		}
+	}
+	return maxId + 1
 }

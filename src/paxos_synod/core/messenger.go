@@ -31,7 +31,6 @@ func (m *Messenger) SendPreBallot(dest NodeInfo, nextBallot *pb.NextBallot) (*pb
 	if err != nil {
 		return r, fmt.Errorf("Could not greet: %v\n", err)
 	}
-	fmt.Println(r)
 	return r, nil
 }
 

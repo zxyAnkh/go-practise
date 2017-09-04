@@ -49,6 +49,7 @@ func (c *Chamber) DealPreBallot(ctx context.Context, in *pb.NextBallot) (*pb.Las
 			Priest: the_Priest.Id,
 		}, nil
 	}
+	finished = false
 	// if already has same ballot id, return default nil struct
 	// because of notes' item is more than leger's, so only check notes
 	var exists bool = false
@@ -60,18 +61,17 @@ func (c *Chamber) DealPreBallot(ctx context.Context, in *pb.NextBallot) (*pb.Las
 			maxId = v.Id
 		}
 	}
-	if exists || maxId == 0 {
-		return &pb.LastVote{
-			Id:     in.Id,
-			MinId:  0,
-			Priest: the_Priest.Id,
-		}, nil
+	if exists {
+		finished = true
+		maxId = 0
 	}
-	return &pb.LastVote{
+	r := &pb.LastVote{
 		Id:     in.Id,
 		MinId:  maxId,
 		Priest: the_Priest.Id,
-	}, nil
+	}
+	fmt.Println(r)
+	return r, err
 }
 
 func (c *Chamber) DealBallot(ctx context.Context, in *pb.BeginBallot) (*pb.Voted, error) {
