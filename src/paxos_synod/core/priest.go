@@ -17,7 +17,7 @@ var (
 	the_Decree string // The Decree which is dealing
 	// The Flag means whether the_Decree complete consensus.
 	// Only complete the_Decree's consensus, the next decree could be handle.
-	finished bool = false
+	finished bool = true
 )
 
 func InitPriest(id int, nodes []*NodeInfo) error {
@@ -57,11 +57,13 @@ func (p *Priest) dealNewBallotRequest(decree string) {
 	if exists {
 		return
 	}
+	finished = false
 	var err error
-	lastVotes := make([]pb.LastVote, len(p.Messenger.Destination))
+	var id uint32 = the_Priest.genreateBallotId()
+	lastVotes := make([]*pb.LastVote, len(p.Messenger.Destination))
 	for k, v := range p.Messenger.Destination {
 		lastVotes[k], err = p.Messenger.SendPreBallot(v, &pb.NextBallot{
-			Id:     1,
+			Id:     id,
 			Priest: the_Priest.Id,
 		})
 		if err != nil {
@@ -80,4 +82,8 @@ func (p *Priest) dealBallot() {
 
 func (p *Priest) dealRecordDecree() {
 
+}
+
+func (p *Priest) genreateBallotId() uint32 {
+	return 0
 }
