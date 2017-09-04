@@ -9,7 +9,7 @@ $go get gopkg.in/mgo.v2</code>
 $go get gopkg.in/mgo.v2/bson</code>
 $go get google.golang.org/grpc</code>
 $go get code.google.com/p/goprotobuf/{proto,protoc-gen-go}
-$go install  code.google.com/p/goprotobuf/proto
+$go install code.google.com/p/goprotobuf/proto
 ```
 
 ####Paxos具体过程

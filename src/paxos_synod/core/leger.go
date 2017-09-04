@@ -5,7 +5,7 @@ import (
 )
 
 type LegerItem struct {
-	Id     uint
+	Id     uint32
 	Decree string
 }
 
@@ -17,7 +17,7 @@ type Leger struct {
 ********Leger Item functions********
 ************************************/
 
-func NewLegerItem(id uint, decree string) *LegerItem {
+func NewLegerItem(id uint32, decree string) *LegerItem {
 	return &LegerItem{
 		Id:     id,
 		Decree: decree,
@@ -78,6 +78,15 @@ func (l *Leger) ContainsItem(item LegerItem) (bool, error) {
 func (l *Leger) ContainsDecree(decree string) bool {
 	for _, v := range l.Items {
 		if decree == v.Decree {
+			return true
+		}
+	}
+	return false
+}
+
+func (l *Leger) ContainsId(id uint32) bool {
+	for _, v := range l.Items {
+		if id == v.Id {
 			return true
 		}
 	}

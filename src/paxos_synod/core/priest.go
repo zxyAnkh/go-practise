@@ -6,7 +6,7 @@ import (
 )
 
 type Priest struct {
-	Id        int
+	Id        uint32
 	Leger     *Leger
 	Notes     *[]Note
 	Messenger *Messenger
@@ -37,7 +37,7 @@ func InitPriest(id int, nodes []*NodeInfo) error {
 		}
 	}
 	the_Priest = Priest{
-		Id:        id,
+		Id:        uint32(id),
 		Leger:     leger,
 		Notes:     notes,
 		Messenger: NewMessenger(destinations),
@@ -61,7 +61,8 @@ func (p *Priest) dealNewBallotRequest(decree string) {
 	lastVotes := make([]pb.LastVote, len(p.Messenger.Destination))
 	for k, v := range p.Messenger.Destination {
 		lastVotes[k], err = p.Messenger.SendPreBallot(v, &pb.NextBallot{
-			Id: 1,
+			Id:     1,
+			Priest: the_Priest.Id,
 		})
 		if err != nil {
 			fmt.Printf("Can't get message from %s, error: %v\n", v.Ip+":"+v.ServerPort, err)

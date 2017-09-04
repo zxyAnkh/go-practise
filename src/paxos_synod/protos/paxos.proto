@@ -15,27 +15,32 @@ package protos;
 */
 
 message NextBallot{
-	uint32 id = 1;
+	uint32 id = 1; // the ballot id
+	uint32 priest = 2; // the priest who send this request
 }
 
 message LastVote{
-	uint32 id = 1;
-	uint32 minId = 2;
+	uint32 id = 1; // the ballot id
+	uint32 minId = 2; // the max ballot id less than id of this priest
+	uint32 priest = 3; // the priest who send this request
 }
 
 message BeginBallot{
-	uint32 id = 1;
-	string decree = 2;
+	uint32 id = 1; // the ballot id
+	string decree = 2; // the decree of this ballot
+	uint32 priest = 3; // the priest who send this request
 }
 
 message Voted{
-	bool vote = 1;
-	uint32 id = 2;
-	string priest = 3;
+	bool vote = 1; // the flag whether vote this ballot
+	uint32 id = 2; // the ballot id
+	uint32 priest = 3; // the priest who send this request
 }
 
 message Success{
-	string decree = 1;
+	uint32 id = 1; // the ballot id
+	string decree = 2; // the decree of this ballot
+	uint32 priest = 3; // the preist who begin this ballot
 }
 
 message Leger{

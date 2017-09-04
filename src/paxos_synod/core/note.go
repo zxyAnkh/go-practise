@@ -1,12 +1,12 @@
 package core
 
 type Note struct {
-	Id     uint
+	Id     uint32
 	Decree string
 	Priest int
 }
 
-func NewNote(id uint, decree string, priest int) *Note {
+func NewNote(id uint32, decree string, priest int) *Note {
 	return &Note{
 		Id:     id,
 		Decree: decree,

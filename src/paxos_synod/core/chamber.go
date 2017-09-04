@@ -41,9 +41,28 @@ func (c *Chamber) StartServer(ip, port string) {
 }
 
 func (c *Chamber) DealPreBallot(ctx context.Context, in *pb.NextBallot) (*pb.LastVote, error) {
+	// if already has same ballot id, return default nil struct
+	if the_Priest.Leger.ContainsId(in.Id) {
+		return &pb.LastVote{
+			Id:     in.Id,
+			MinId:  0,
+			Priest: the_Priest.Id,
+		}, nil
+	}
+	for _, v := range *the_Priest.Notes {
+		if v.Id == in.Id {
+			return &pb.LastVote{
+				Id:     in.Id,
+				MinId:  0,
+				Priest: the_Priest.Id,
+			}, nil
+		}
+	}
+
 	return &pb.LastVote{
-		Id:    1,
-		MinId: 1,
+		Id:     in.Id,
+		MinId:  0,
+		Priest: the_Priest.Id,
 	}, nil
 }
 
@@ -51,7 +70,7 @@ func (c *Chamber) DealBallot(ctx context.Context, in *pb.BeginBallot) (*pb.Voted
 	return &pb.Voted{
 		Vote:   false,
 		Id:     1,
-		Priest: "1",
+		Priest: 1,
 	}, nil
 }
 
