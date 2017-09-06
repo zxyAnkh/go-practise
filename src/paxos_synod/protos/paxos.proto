@@ -21,7 +21,7 @@ message NextBallot{
 
 message LastVote{
 	uint32 id = 1; // the ballot id
-	uint32 minId = 2; // the max ballot id less than id of this priest
+	uint32 maxId = 2; // the max ballot id less than id of this priest
 	uint32 priest = 3; // the priest who send this request
 }
 

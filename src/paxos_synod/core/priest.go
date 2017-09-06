@@ -80,12 +80,14 @@ func (p *Priest) dealNewBallotRequest(decree string) {
 			fmt.Printf("Can't get message from %s, error: %v\n", v.Ip+":"+v.ServerPort, err)
 		}
 	}
-	if float32(len(lastVotes))/float32(len(p.Messenger.Destination)) > 0.5 {
-		fmt.Println("Receive over 50 precent priests' response")
+	if float32(len(lastVotes))/float32(len(p.Messenger.Destination)) <= 0.5 {
+		finished = true
+		return
 	}
+	the_Priest.dealPreBallot(id, decree)
 }
 
-func (p *Priest) dealPreBallot() {
+func (p *Priest) dealPreBallot(id uint32, decree string) {
 
 }
 

@@ -45,7 +45,7 @@ func (c *Chamber) DealPreBallot(ctx context.Context, in *pb.NextBallot) (*pb.Las
 	if !finished {
 		return &pb.LastVote{
 			Id:     in.Id,
-			MinId:  0,
+			MaxId:  0,
 			Priest: the_Priest.Id,
 		}, nil
 	}
@@ -67,11 +67,11 @@ func (c *Chamber) DealPreBallot(ctx context.Context, in *pb.NextBallot) (*pb.Las
 	}
 	r := &pb.LastVote{
 		Id:     in.Id,
-		MinId:  maxId,
+		MaxId:  maxId,
 		Priest: the_Priest.Id,
 	}
 	fmt.Println(r)
-	return r, err
+	return r, nil
 }
 
 func (c *Chamber) DealBallot(ctx context.Context, in *pb.BeginBallot) (*pb.Voted, error) {
