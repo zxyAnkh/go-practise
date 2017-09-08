@@ -14,22 +14,20 @@ $go install code.google.com/p/goprotobuf/proto
 
 ####Paxos中数据结构的定义
 ------------------------
-######Leger
+######数据库 数据结构
 ```
 type Leger{
     Id uint32 // the ballot id
     Decree string // the decree in this ballot
     Priest int // the priest who begin this ballot
 }
-```
-######Note
-```
 type Note{
     Id uint32 // the ballot id
     Decree string // the decree in this ballot
     Priest int // the priest who begin this ballot
 }
 ```
+在该版本中，由于都部署在本地，所以使用同一个数据库。
 ######Messages
 ```
 message NextBallot{
@@ -69,9 +67,9 @@ message Success{
 1. Priest p1收到一个POST请求，p1检查自己的Leger和Note记录，判断是否存在相同内容的记录，存在则忽略此请求，不存在则生成一个新的Ballot id和一个NextBallot请求，并发送给Priest p2和p3。
     新的Ballot id生成采用Priest的Note记录中的id值递增的方式生成。每个Priest的Ballot id分段都是10个一段，即p1的Ballot id区间为\[1,10\)，p2为\[11,20\)，当区间内id用完后，新区间为\[10\*num(priest)\*time, 10\*(num(priest)+1)\*time\)，其中time为扩展次数，初始为0。
 2. Priest p2收到来自p1的NextBallot消息之后，根据自己Note中的信息，找到自己投票的小于信息NextBallot中Ballot id的最大的Ballot id，并返回LastVote信息给p1，如果没有找到，则返回空的LastVote信息。
-    
-3. 当p1收到大部分Priest即p2和p3的回复后，将该Ballot id的Ballot的Decree改为遵守Paxos协议的decree，并生成一个BeginBallot信息，将其发送给其他的Priest。
 
+3. 当p1收到大部分Priest即p2和p3的回复后，将该Ballot id的Ballot的Decree改为遵守Paxos协议的decree，并生成一个BeginBallot信息，将其发送给其他的Priest。
+    遵守Paxos协议即，如果收到p2和p3的回复后，p2或者p3投票给了之前一个尚未通过的Ballot，则该Ballot的decree修改为小于该Ballot id的最大那个Ballot的Decree。
 4. 其他的Priest收到BeginBallot消息后，根据之前它给其他Priest返回的LastVote，决定是否投票给该BeginBallot，如果决定投票，则将其记录在Leger中，并发送Voted信息给p1。
 
 5. 如果p1从所有的Priest的大部分Priest中收到Voted回复，则在他的Leger上记录该decree，并发送一个Success信息给每一个Priest。
