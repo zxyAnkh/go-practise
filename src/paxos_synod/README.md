@@ -1,6 +1,8 @@
 ## Paxos synod
 -------------------------
 这是根据[Lamport-paxos](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/12/The-Part-Time-Parliament.pdf)论文第2章的The Single Decree Synod的基本描述略微修改的Go语言实现版本。
+在docs目录下，有该论文的正在翻译版本。
+
 主要用到的技术分别是 [MonogoDB](https://docs.mongodb.com/manual/), [Protobuf](https://developers.google.com/protocol-buffers/), [gRPC](https://grpc.io/docs/quickstart/go.html)，具体的使用可以参考各自的官网。
 
 下载后使用需要先安装MongoDB，并下载相关依赖
