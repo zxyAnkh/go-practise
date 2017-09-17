@@ -14,9 +14,9 @@ $go get code.google.com/p/goprotobuf/{proto,protoc-gen-go}
 $go install code.google.com/p/goprotobuf/proto
 ```
 
-####Paxos中数据结构的定义
+#### Paxos中数据结构的定义
 ------------------------
-######数据库 数据结构
+###### 数据库 数据结构
 ```
 type Leger{
     Id uint32 // the ballot id
@@ -30,7 +30,7 @@ type Note{
 }
 ```
 在该版本中，由于都部署在本地，所以使用同一个数据库。
-######Messages
+###### Messages
 ```
 message NextBallot{
     uint32 id = 1; // the ballot id
@@ -62,7 +62,7 @@ message Success{
 }
 ```
 
-####Paxos具体过程
+#### Paxos具体过程
 ------------------------
 只有1个角色，Priest，一共3个节点，也就是一共3个Priest。 Priest可以进行提交提案，决定提案是否通过。提案中包括提案编号和法令。
 设定Priest在Chamber中办公，由POST请求至3个Priest中某个Chamber作为接收一个新的意见，Priest可以决定将该意见作为一个新的Ballot与其他Priest共识之后成为一个正式的Decree记入各自的Leger中。POST请求格式要求为 ```{"decree": "the content of decree"}```。
