@@ -8,24 +8,25 @@ import (
 type Priest struct {
 	Id        uint32
 	Leger     *Leger
-	Notes     *[]Note
+	Notes     []Note
 	Messenger *Messenger
 }
 
 var (
-	the_Priest Priest // The Priest which this node represented
-	the_Decree string // The Decree which is dealing
-	// The Flag means whether the_Decree complete consensus.
-	// Only complete the_Decree's consensus, the next decree could be handle.
-	finished bool = true
+	the_Priest   Priest         // The Priest which this node represented
+	the_Decree   string         // The Decree which is dealing
+	is_President bool   = false // default president is the first node
 )
 
-func InitPriest(id int, nodes []*NodeInfo) error {
-	leger, err := InitLeger()
+func InitPriest(id int, nodes []NodeInfo) error {
+	if id == 1 {
+		is_President = true
+	}
+	leger, err := initLeger()
 	if err != nil {
 		return fmt.Errorf("Init leger error: %v\n", err)
 	}
-	notes, err := InitNote()
+	notes, err := initNote()
 	if err != nil {
 		return fmt.Errorf("Init notes error: %v\n", err)
 	}
@@ -33,7 +34,7 @@ func InitPriest(id int, nodes []*NodeInfo) error {
 	i := 0
 	for k, v := range nodes {
 		if k+1 != id {
-			destinations[i] = *v
+			destinations[i] = v
 			i++
 		}
 	}
@@ -41,38 +42,37 @@ func InitPriest(id int, nodes []*NodeInfo) error {
 		Id:        uint32(id),
 		Leger:     leger,
 		Notes:     notes,
-		Messenger: NewMessenger(destinations),
+		Messenger: newMessenger(destinations),
 	}
 	return nil
 }
 
 func (p *Priest) dealNewBallotRequest(decree string) {
-	if !finished || decree == the_Decree {
+	if decree == the_Decree {
 		return
 	}
-	exists := p.Leger.ContainsDecree(decree)
+	exists := p.Leger.containsDecree(decree)
 	if exists {
 		return
 	}
-	exists = ContainsNote(*p.Notes, decree)
+	exists = containsNote(p.Notes, decree)
 	if exists {
 		return
 	}
-	finished = false
 	var err error
 	var id uint32 = the_Priest.genreateBallotId()
-	err = InsertNote(Note{
+	err = insertNote(Note{
 		Id:     id,
 		Decree: decree,
 		Priest: int(the_Priest.Id),
 	})
-	p.Notes, err = InitNote()
+	p.Notes, err = initNote()
 	if err != nil {
 		return
 	}
 	lastVotes := make([]*pb.LastVote, len(p.Messenger.Destination))
 	for k, v := range p.Messenger.Destination {
-		lastVotes[k], err = p.Messenger.SendPreBallot(v, &pb.NextBallot{
+		lastVotes[k], err = p.Messenger.sendPreBallot(v, &pb.NextBallot{
 			Id:     id,
 			Priest: the_Priest.Id,
 		})
@@ -81,7 +81,6 @@ func (p *Priest) dealNewBallotRequest(decree string) {
 		}
 	}
 	if float32(len(lastVotes))/float32(len(p.Messenger.Destination)) <= 0.5 {
-		finished = true
 		return
 	}
 	the_Priest.dealPreBallot(id, decree)
@@ -101,7 +100,7 @@ func (p *Priest) dealRecordDecree() {
 
 func (p *Priest) genreateBallotId() uint32 {
 	var maxId uint32 = 0
-	for _, v := range *p.Notes {
+	for _, v := range p.Leger.Items {
 		if v.Id > maxId {
 			maxId = v.Id
 		}

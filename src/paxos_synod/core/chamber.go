@@ -20,14 +20,14 @@ func NewChamber() *Chamber {
 
 func InitChamber(ip, serverPort, httpPort string) {
 	chamber := NewChamber()
-	go chamber.StartServer(ip, serverPort)
-	chamber.StartHttpServer(ip, httpPort)
+	go chamber.startServer(ip, serverPort)
+	chamber.startHttpServer(ip, httpPort)
 }
 
 /*********************************
 *************gRPC Server**********
 *********************************/
-func (c *Chamber) StartServer(ip, port string) {
+func (c *Chamber) startServer(ip, port string) {
 	lis, err := net.Listen("tcp", ip+":"+port)
 	if err != nil {
 		fmt.Errorf("Start server error: %v\n", err)
@@ -41,20 +41,11 @@ func (c *Chamber) StartServer(ip, port string) {
 }
 
 func (c *Chamber) DealPreBallot(ctx context.Context, in *pb.NextBallot) (*pb.LastVote, error) {
-	// not deal any ballots util the last ballot progress finish
-	if !finished {
-		return &pb.LastVote{
-			Id:     in.Id,
-			MaxId:  0,
-			Priest: the_Priest.Id,
-		}, nil
-	}
-	finished = false
 	// if already has same ballot id, return default nil struct
 	// because of notes' item is more than leger's, so only check notes
 	var exists bool = false
 	var maxId uint32 = 0
-	for _, v := range *the_Priest.Notes {
+	for _, v := range the_Priest.Notes {
 		if v.Id == in.Id {
 			exists = true
 		} else if v.Id < in.Id && uint32(v.Priest) == the_Priest.Id && v.Id > maxId {
@@ -62,7 +53,6 @@ func (c *Chamber) DealPreBallot(ctx context.Context, in *pb.NextBallot) (*pb.Las
 		}
 	}
 	if exists {
-		finished = true
 		maxId = 0
 	}
 	r := &pb.LastVote{
@@ -96,8 +86,8 @@ func (c *Chamber) Synchronize(ctx context.Context, in *pb.Leger) (*pb.Leger, err
 *************HTTP Server**********
 **********************************
 *the way to produce a new decree*/
-func (c *Chamber) StartHttpServer(ip, port string) {
-	http.HandleFunc("/synod/"+fmt.Sprintf("%d", the_Priest.Id)+"/", ChamberHttpServer)
+func (c *Chamber) startHttpServer(ip, port string) {
+	http.HandleFunc("/synod/"+fmt.Sprintf("%d", the_Priest.Id), chamberHttpServer)
 	err := http.ListenAndServe(ip+":"+port, nil)
 	if err != nil {
 		fmt.Errorf("Error: %v\n", err)
@@ -106,8 +96,8 @@ func (c *Chamber) StartHttpServer(ip, port string) {
 
 // only deal post request with formatted data
 // {"decree":"make this world better."}
-func ChamberHttpServer(w http.ResponseWriter, req *http.Request) {
-	if req.Method == "POST" {
+func chamberHttpServer(w http.ResponseWriter, req *http.Request) {
+	if req.Method == "POST" && is_President {
 		reqBody := req.Body
 		buf, err := ioutil.ReadAll(reqBody)
 		if err != nil {
@@ -118,7 +108,10 @@ func ChamberHttpServer(w http.ResponseWriter, req *http.Request) {
 			fmt.Errorf("Get decree from body error: %v\n", err)
 		}
 		fmt.Println("Decree is :", decree)
-		the_Priest.dealNewBallotRequest(decree)
+		// the_Priest.dealNewBallotRequest(decree)
+	}
+	if req.Method == "GET" {
+		fmt.Println("GET")
 	}
 }
 

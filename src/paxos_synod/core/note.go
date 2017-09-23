@@ -6,7 +6,7 @@ type Note struct {
 	Priest int
 }
 
-func NewNote(id uint32, decree string, priest int) *Note {
+func newNote(id uint32, decree string, priest int) *Note {
 	return &Note{
 		Id:     id,
 		Decree: decree,
@@ -14,11 +14,11 @@ func NewNote(id uint32, decree string, priest int) *Note {
 	}
 }
 
-func InitNote() (*[]Note, error) {
-	return FindAllNote()
+func initNote() ([]Note, error) {
+	return findAllNote()
 }
 
-func ContainsNote(notes []Note, decree string) bool {
+func containsNote(notes []Note, decree string) bool {
 	for _, v := range notes {
 		if v.Decree == decree {
 			return true

@@ -1,147 +1,108 @@
 package core
 
 import (
-	"fmt"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/go-redis/redis"
+	"strconv"
 )
 
 const (
-	db_server    string = "localhost"
-	db           string = "paxos_synod"
-	collec_leger string = "leger"
-	collec_note  string = "note"
+	db_server string = "localhost:6379"
+	db_leger  string = "paxos.synod.leger"
+	db_note   string = "paxos.synod.note"
 )
+
+var redis_client *redis.Client = redis.NewClient(&redis.Options{
+	Addr:     db_server,
+	Password: "",
+	DB:       0,
+})
 
 /*********************
 *********Leger********
 *********************/
-func InsertLegerItem(item LegerItem) error {
-	session, err := mgo.Dial(db_server)
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-	session.SetMode(mgo.Monotonic, true)
-	c := session.DB(db).C(collec_leger)
-	err = c.Insert(item)
-	if err != nil {
-		return fmt.Errorf("Insert leger item error: %v\n", err)
-	}
-	return nil
+func insertLegerItem(item LegerItem) error {
+	err := redis_client.Set(db_leger+"."+strconv.Itoa(int(item.Id)), "", 0).Err()
+	return err
 }
 
-func FindOneLegerItemById(id uint) (LegerItem, error) {
-	session, err := mgo.Dial(db_server)
-	if err != nil {
-		panic(err)
+func findOneLegerItemById(id uint) (LegerItem, error) {
+	_, err := redis_client.Get(db_leger).Result()
+	if err == redis.Nil {
+		return LegerItem{}, nil
+	} else if err != nil {
+		return LegerItem{}, err
 	}
-	defer session.Close()
-	session.SetMode(mgo.Monotonic, true)
-	c := session.DB(db).C(collec_leger)
-	result := LegerItem{}
-	err = c.Find(bson.M{"id": id}).One(&result)
-	if err != nil {
-		return result, fmt.Errorf("Find one leger item by id error: %v\n", err)
-	}
-	return result, nil
+	return LegerItem{}, nil
 }
 
-func FindAllLegerItem() (Leger, error) {
-	session, err := mgo.Dial(db_server)
-	if err != nil {
-		panic(err)
+func findAllLegerItem() (Leger, error) {
+	val, err := redis_client.Get(db_leger).Result()
+	if err == redis.Nil {
+		return Leger{}, nil
+	} else if err != nil {
+		return Leger{}, err
 	}
-	defer session.Close()
-	session.SetMode(mgo.Monotonic, true)
-	c := session.DB(db).C(collec_leger)
-	leger := Leger{}
-	result := []LegerItem{}
-	err = c.Find(bson.M{}).All(&result)
+	count, err := strconv.Atoi(val)
 	if err != nil {
-		return leger, fmt.Errorf("Find all leger item error: %v\n", err)
+		return Leger{}, err
 	}
-	leger.Items = result
+	leger := Leger{
+		Items: make([]LegerItem, count),
+	}
+	for i := 1; i <= count; i++ {
+		item, err := findOneLegerItemById(uint(i))
+		if err != nil {
+			leger.Items[i-1] = item
+		}
+	}
 	return leger, nil
 }
 
 /*********************
 *********Note*********
 *********************/
-func InsertNote(note Note) error {
-	session, err := mgo.Dial(db_server)
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-	session.SetMode(mgo.Monotonic, true)
-	c := session.DB(db).C(collec_note)
-	err = c.Insert(note)
-	if err != nil {
-		return fmt.Errorf("Insert note error: %v\n", err)
-	}
-	return nil
+func insertNote(note Note) error {
+	err := redis_client.Set(db_note, "", 0).Err()
+	return err
 }
 
-func DeleteNoteById(id uint) error {
-	session, err := mgo.Dial(db_server)
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-	session.SetMode(mgo.Monotonic, true)
-	c := session.DB(db).C(collec_note)
-	err = c.Remove(bson.M{"id": id})
-	if err != nil {
-		return fmt.Errorf("Delete note by id error: %v\n", err)
-	}
-	return nil
+func deleteNoteById(id uint) error {
+	err := redis_client.Del("").Err()
+	return err
 }
 
-func UpdateNote(oldNote, newNote Note) error {
-	session, err := mgo.Dial(db_server)
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-	session.SetMode(mgo.Monotonic, true)
-	c := session.DB(db).C(collec_note)
-	err = c.Update(bson.M{"id": oldNote.Id, "decree": oldNote.Decree, "priest": oldNote.Priest},
-		bson.M{"$set": bson.M{"id": newNote.Id, "decree": newNote.Decree, "priest": newNote.Priest}})
-	if err != nil {
-		return fmt.Errorf("Update note error: %v\n", err)
-	}
-	return nil
+func updateNote(oldNote, newNote Note) error {
+	err := redis_client.Set(db_note, "", 0).Err()
+	return err
 }
 
-func FindOneNoteById(id uint) (Note, error) {
-	session, err := mgo.Dial(db_server)
-	if err != nil {
-		panic(err)
+func findOneNoteById(id uint) (Note, error) {
+	_, err := redis_client.Get(db_note).Result()
+	if err == redis.Nil {
+		return Note{}, nil
+	} else if err != nil {
+		return Note{}, err
 	}
-	defer session.Close()
-	session.SetMode(mgo.Monotonic, true)
-	c := session.DB(db).C(collec_note)
-	result := Note{}
-	err = c.Find(bson.M{"id": id}).One(&result)
-	if err != nil {
-		return result, fmt.Errorf("Find one note by id error: %v\n", err)
-	}
-	return result, nil
+	return Note{}, nil
 }
 
-func FindAllNote() (*[]Note, error) {
-	session, err := mgo.Dial(db_server)
-	if err != nil {
-		panic(err)
+func findAllNote() ([]Note, error) {
+	val, err := redis_client.Get(db_leger).Result()
+	if err == redis.Nil {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
 	}
-	defer session.Close()
-	session.SetMode(mgo.Monotonic, true)
-	c := session.DB(db).C(collec_note)
-	result := []Note{}
-	err = c.Find(bson.M{}).All(&result)
+	count, err := strconv.Atoi(val)
 	if err != nil {
-		return &result, fmt.Errorf("Find all note error: %v\n", err)
+		return nil, err
 	}
-	return &result, nil
+	notes := make([]Note, count)
+	for i := 1; i <= count; i++ {
+		note, err := findOneNoteById(uint(i))
+		if err != nil {
+			notes[i-1] = note
+		}
+	}
+	return notes, nil
 }

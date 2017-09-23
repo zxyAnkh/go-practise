@@ -9,18 +9,19 @@ import (
 )
 
 var (
-	id         int              = 0
-	configPath string           = ""
-	nodes      []*core.NodeInfo = make([]*core.NodeInfo, 0)
+	id         int             = 0
+	configPath string          = ""
+	nodes      []core.NodeInfo = make([]core.NodeInfo, 0)
 )
 
+// start command: go run main.go -id 1 -configPath ~/config.yaml
 func main() {
 	parseArguments()
 	paxosConfig, err := config.GetPaxosConfig(configPath)
 	if err != nil {
 		fmt.Errorf("error: %v\n", err)
 	}
-	nodes = make([]*core.NodeInfo, len(paxosConfig.Paxos.Node))
+	nodes = make([]core.NodeInfo, len(paxosConfig.Paxos.Node))
 	for k, v := range paxosConfig.Paxos.Node {
 		nstrs := strings.Split(v, ":")
 		nodes[k] = core.NewNodeInfo(k+1, nstrs[0], nstrs[1], nstrs[2], nstrs[3])

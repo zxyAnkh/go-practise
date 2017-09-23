@@ -17,7 +17,7 @@ type Leger struct {
 ********Leger Item functions********
 ************************************/
 
-func NewLegerItem(id uint32, decree string) *LegerItem {
+func newLegerItem(id uint32, decree string) *LegerItem {
 	return &LegerItem{
 		Id:     id,
 		Decree: decree,
@@ -33,9 +33,9 @@ func (li *LegerItem) equals(item LegerItem) bool {
 ************************************/
 
 // read leger from db
-func InitLeger() (*Leger, error) {
+func initLeger() (*Leger, error) {
 	newLeger := &Leger{}
-	oldLeger, err := FindAllLegerItem()
+	oldLeger, err := findAllLegerItem()
 	if err != nil {
 		return newLeger, err
 	}
@@ -46,8 +46,8 @@ func InitLeger() (*Leger, error) {
 // add item to leger
 // the leger initialize length is 5
 // capacity will double if the length equals capacity
-func (l *Leger) AddItem(item LegerItem) error {
-	if exists, _ := l.ContainsItem(item); exists == true {
+func (l *Leger) addItem(item LegerItem) error {
+	if exists, _ := l.containsItem(item); exists == true {
 		return fmt.Errorf("Item %v is exists.\n", item)
 	}
 	length := len(l.Items)
@@ -65,7 +65,7 @@ func (l *Leger) AddItem(item LegerItem) error {
 }
 
 // judge whether the item is in leger
-func (l *Leger) ContainsItem(item LegerItem) (bool, error) {
+func (l *Leger) containsItem(item LegerItem) (bool, error) {
 	for _, v := range l.Items {
 		if v.Id == item.Id && v.Decree == item.Decree {
 			return true, nil
@@ -75,7 +75,7 @@ func (l *Leger) ContainsItem(item LegerItem) (bool, error) {
 }
 
 // judge whether the decree is in leger
-func (l *Leger) ContainsDecree(decree string) bool {
+func (l *Leger) containsDecree(decree string) bool {
 	for _, v := range l.Items {
 		if decree == v.Decree {
 			return true
@@ -84,7 +84,7 @@ func (l *Leger) ContainsDecree(decree string) bool {
 	return false
 }
 
-func (l *Leger) ContainsId(id uint32) bool {
+func (l *Leger) containsId(id uint32) bool {
 	for _, v := range l.Items {
 		if id == v.Id {
 			return true

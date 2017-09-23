@@ -8,8 +8,8 @@ type NodeInfo struct {
 	HttpPort   string
 }
 
-func NewNodeInfo(id int, ip, clientPort, serverPort, httpPort string) *NodeInfo {
-	return &NodeInfo{
+func NewNodeInfo(id int, ip, clientPort, serverPort, httpPort string) NodeInfo {
+	return NodeInfo{
 		Id:         id,
 		Ip:         ip,
 		ClientPort: clientPort,
