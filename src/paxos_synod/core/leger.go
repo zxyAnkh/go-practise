@@ -7,6 +7,7 @@ import (
 type LegerItem struct {
 	Id     uint32
 	Decree string
+	Priest uint32
 }
 
 type Leger struct {
@@ -17,15 +18,16 @@ type Leger struct {
 ********Leger Item functions********
 ************************************/
 
-func newLegerItem(id uint32, decree string) *LegerItem {
+func newLegerItem(id, priest uint32, decree string) *LegerItem {
 	return &LegerItem{
 		Id:     id,
 		Decree: decree,
+		Priest: priest,
 	}
 }
 
 func (li *LegerItem) equals(item LegerItem) bool {
-	return item.Id == li.Id && item.Decree == li.Decree
+	return item.Id == li.Id && item.Decree == li.Decree && item.Priest == li.Priest
 }
 
 /***********************************
@@ -67,7 +69,7 @@ func (l *Leger) addItem(item LegerItem) error {
 // judge whether the item is in leger
 func (l *Leger) containsItem(item LegerItem) (bool, error) {
 	for _, v := range l.Items {
-		if v.Id == item.Id && v.Decree == item.Decree {
+		if v.Id == item.Id && v.Decree == item.Decree && v.Priest == item.Priest {
 			return true, nil
 		}
 	}

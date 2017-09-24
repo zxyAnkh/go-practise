@@ -65,13 +65,21 @@ func (c *Chamber) DealPreBallot(ctx context.Context, in *pb.NextBallot) (*pb.Las
 
 func (c *Chamber) DealBallot(ctx context.Context, in *pb.BeginBallot) (*pb.Voted, error) {
 	return &pb.Voted{
-		Vote:   false,
-		Id:     1,
-		Priest: 1,
+		Vote:   true,
+		Id:     in.Id,
+		Priest: the_Priest.Id,
 	}, nil
 }
 
 func (c *Chamber) RecordDecree(ctx context.Context, in *pb.Success) (*pb.Empty, error) {
+	err := insertLegerItem(LegerItem{
+		Id:     in.Id,
+		Decree: in.Decree,
+		Priest: in.Priest,
+	})
+	if err != nil {
+		fmt.Println("Insert leger item into db error: %v\n", err)
+	}
 	return &pb.Empty{}, nil
 }
 
