@@ -80,7 +80,7 @@ func (p *Priest) dealNewBallotRequest(decree string) {
 			fmt.Printf("Can't get message from %s, error: %v\n", v.Ip+":"+v.ServerPort, err)
 		}
 	}
-	if float32(len(lastVotes))/float32(len(p.Messenger.Destination)) <= 0.5 {
+	if len(lastVotes) != len(p.Messenger.Destination) {
 		return
 	}
 	the_Priest.dealPreBallot(id, decree)

@@ -60,7 +60,6 @@ func (c *Chamber) DealPreBallot(ctx context.Context, in *pb.NextBallot) (*pb.Las
 		MaxId:  maxId,
 		Priest: the_Priest.Id,
 	}
-	fmt.Println(r)
 	return r, nil
 }
 
@@ -108,10 +107,7 @@ func chamberHttpServer(w http.ResponseWriter, req *http.Request) {
 			fmt.Errorf("Get decree from body error: %v\n", err)
 		}
 		fmt.Println("Decree is :", decree)
-		// the_Priest.dealNewBallotRequest(decree)
-	}
-	if req.Method == "GET" {
-		fmt.Println("GET")
+		the_Priest.dealNewBallotRequest(decree)
 	}
 }
 

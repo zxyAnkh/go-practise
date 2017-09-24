@@ -30,7 +30,8 @@ func insertLegerItem(item LegerItem) error {
 	if err != nil {
 		return err
 	}
-	err = redis_client.Set(db_leger+"."+strconv.Itoa(int(item.Id)), string(val), 0).Err()
+	var key string = generateKey(db_leger, strconv.Itoa(int(the_Priest.Id)), strconv.Itoa(int(item.Id)))
+	err = redis_client.Set(key, string(val), 0).Err()
 	if err != nil {
 		return err
 	}
@@ -38,9 +39,10 @@ func insertLegerItem(item LegerItem) error {
 }
 
 func updateLegerSize() error {
-	val, err := redis_client.Get(db_leger_size).Result()
+	var key string = generateKey(db_leger_size, strconv.Itoa(int(the_Priest.Id)))
+	val, err := redis_client.Get(key).Result()
 	if err == redis.Nil {
-		err = redis_client.Set(db_leger_size, "0", 0).Err()
+		err = redis_client.Set(key, "0", 0).Err()
 		return err
 	} else if err != nil {
 		return nil
@@ -49,12 +51,13 @@ func updateLegerSize() error {
 	if err != nil {
 		return err
 	}
-	err = redis_client.Set(db_leger_size, strconv.Itoa(size+1), 0).Err()
+	err = redis_client.Set(key, strconv.Itoa(size+1), 0).Err()
 	return err
 }
 
 func findOneLegerItemById(id uint) (LegerItem, error) {
-	val, err := redis_client.Get(db_leger + "." + strconv.Itoa(int(id))).Result()
+	var key string = generateKey(db_leger, strconv.Itoa(int(the_Priest.Id)), strconv.Itoa(int(id)))
+	val, err := redis_client.Get(key).Result()
 	if err == redis.Nil {
 		return LegerItem{}, nil
 	} else if err != nil {
@@ -69,7 +72,8 @@ func findOneLegerItemById(id uint) (LegerItem, error) {
 }
 
 func findAllLegerItem() (Leger, error) {
-	val, err := redis_client.Get(db_leger_size).Result()
+	var key string = generateKey(db_leger_size, strconv.Itoa(int(the_Priest.Id)))
+	val, err := redis_client.Get(key).Result()
 	if err == redis.Nil {
 		return Leger{}, nil
 	} else if err != nil {
@@ -99,7 +103,8 @@ func insertNote(note Note) error {
 	if err != nil {
 		return err
 	}
-	err = redis_client.Set(db_note+"."+strconv.Itoa(int(note.Id)), string(val), 0).Err()
+	var key string = generateKey(db_note, strconv.Itoa(int(the_Priest.Id)), strconv.Itoa(int(note.Id)))
+	err = redis_client.Set(key, string(val), 0).Err()
 	if err != nil {
 		return err
 	}
@@ -107,9 +112,10 @@ func insertNote(note Note) error {
 }
 
 func updateNoteSize() error {
-	val, err := redis_client.Get(db_note_size).Result()
+	var key string = generateKey(db_note_size, strconv.Itoa(int(the_Priest.Id)))
+	val, err := redis_client.Get(key).Result()
 	if err == redis.Nil {
-		err = redis_client.Set(db_note_size, "0", 0).Err()
+		err = redis_client.Set(key, "0", 0).Err()
 		return err
 	} else if err != nil {
 		return nil
@@ -118,12 +124,13 @@ func updateNoteSize() error {
 	if err != nil {
 		return err
 	}
-	err = redis_client.Set(db_note_size, strconv.Itoa(size+1), 0).Err()
+	err = redis_client.Set(key, strconv.Itoa(size+1), 0).Err()
 	return err
 }
 
 func deleteNoteById(id uint) error {
-	err := redis_client.Del(db_note + "." + strconv.Itoa(int(id))).Err()
+	var key string = generateKey(db_note, strconv.Itoa(int(the_Priest.Id)), strconv.Itoa(int(id)))
+	err := redis_client.Del(key).Err()
 	return err
 }
 
@@ -132,12 +139,14 @@ func updateNote(oldNote, newNote Note) error {
 	if err != nil {
 		return err
 	}
-	err = redis_client.Set(db_note+"."+strconv.Itoa(int(oldNote.Id)), string(val), 0).Err()
+	var key string = generateKey(db_note, strconv.Itoa(int(the_Priest.Id)), strconv.Itoa(int(oldNote.Id)))
+	err = redis_client.Set(key, string(val), 0).Err()
 	return err
 }
 
 func findOneNoteById(id uint) (Note, error) {
-	val, err := redis_client.Get(db_note + "." + strconv.Itoa(int(id))).Result()
+	var key string = generateKey(db_note, strconv.Itoa(int(the_Priest.Id)), strconv.Itoa(int(id)))
+	val, err := redis_client.Get(key).Result()
 	if err == redis.Nil {
 		return Note{}, nil
 	} else if err != nil {
@@ -152,7 +161,8 @@ func findOneNoteById(id uint) (Note, error) {
 }
 
 func findAllNote() ([]Note, error) {
-	val, err := redis_client.Get(db_note_size).Result()
+	var key string = generateKey(db_note_size, strconv.Itoa(int(the_Priest.Id)))
+	val, err := redis_client.Get(key).Result()
 	if err == redis.Nil {
 		return nil, nil
 	} else if err != nil {
@@ -170,4 +180,16 @@ func findAllNote() ([]Note, error) {
 		}
 	}
 	return notes, nil
+}
+
+func generateKey(strs ...string) string {
+	var key string
+	for k, v := range strs {
+		if k == len(strs)-1 {
+			key += v
+		} else {
+			key += v + "."
+		}
+	}
+	return key
 }
