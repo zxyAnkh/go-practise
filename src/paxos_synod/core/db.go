@@ -115,7 +115,7 @@ func updateNoteSize() error {
 	var key string = generateKey(db_note_size, strconv.Itoa(int(the_Priest.Id)))
 	val, err := redis_client.Get(key).Result()
 	if err == redis.Nil {
-		err = redis_client.Set(key, "0", 0).Err()
+		err = redis_client.Set(key, "1", 0).Err()
 		return err
 	} else if err != nil {
 		return nil

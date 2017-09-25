@@ -41,19 +41,11 @@ func (c *Chamber) startServer(ip, port string) {
 }
 
 func (c *Chamber) DealPreBallot(ctx context.Context, in *pb.NextBallot) (*pb.LastVote, error) {
-	// if already has same ballot id, return default nil struct
-	// because of notes' item is more than leger's, so only check notes
-	var exists bool = false
 	var maxId uint32 = 0
 	for _, v := range the_Priest.Notes {
-		if v.Id == in.Id {
-			exists = true
-		} else if v.Id < in.Id && uint32(v.Priest) == the_Priest.Id && v.Id > maxId {
+		if v.Id < in.Id && uint32(v.Priest) == the_Priest.Id && v.Id > maxId {
 			maxId = v.Id
 		}
-	}
-	if exists {
-		maxId = 0
 	}
 	r := &pb.LastVote{
 		Id:     in.Id,

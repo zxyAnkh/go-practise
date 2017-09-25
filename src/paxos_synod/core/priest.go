@@ -61,16 +61,12 @@ func (p *Priest) dealNewBallotRequest(decree string) {
 	}
 	var err error
 	var id uint32 = the_Priest.genreateBallotId()
-	err = insertNote(Note{
-		Id:     id,
-		Decree: decree,
-		Priest: int(the_Priest.Id),
-	})
 	p.Notes, err = initNote()
 	if err != nil {
 		return
 	}
-	lastVotes := make([]*pb.LastVote, len(p.Messenger.Destination))
+	var count int = len(p.Messenger.Destination)
+	lastVotes := make([]*pb.LastVote, count)
 	for k, v := range p.Messenger.Destination {
 		lastVotes[k], err = p.Messenger.sendPreBallot(v, &pb.NextBallot{
 			Id:     id,
@@ -78,21 +74,48 @@ func (p *Priest) dealNewBallotRequest(decree string) {
 		})
 		if err != nil {
 			fmt.Printf("Can't get message from %s, error: %v\n", v.Ip+":"+v.ServerPort, err)
+			count--
 		}
 	}
-	if len(lastVotes) != len(p.Messenger.Destination) {
+	if count != len(p.Messenger.Destination) {
 		return
 	}
-	the_Priest.dealPreBallot(id, decree)
+	the_Priest.dealPreBallotResponse(lastVotes, id, decree)
 }
 
-func (p *Priest) dealPreBallot(id uint32, decree string) {
+// lastVotes: other priest's response; id: this ballot id; decree: this ballot decree(init)
+func (p *Priest) dealPreBallotResponse(lastVotes []*pb.LastVote, id uint32, decree string) {
+	var maxId uint32 = 0
+	for _, v := range lastVotes {
+		if v.MaxId != 0 && maxId < v.MaxId && !the_Priest.Leger.containsId(v.MaxId) {
+			maxId = v.MaxId
+		}
+	}
+	if maxId != 0 && id > maxId {
+		for _, v := range the_Priest.Notes {
+			if v.Id == maxId {
+				id = v.Id
+				decree = v.Decree
+				break
+			}
+		}
+	}
+	note := Note{
+		Id:     id,
+		Decree: decree,
+		Priest: int(the_Priest.Id),
+	}
+	var err error
+	the_Priest.Notes, err = addNote(the_Priest.Notes, note)
+	if err != nil {
+		fmt.Println("Add Note error: %v\n", err)
+		return
+	}
 	beginBallot := &pb.BeginBallot{
 		Id:     id,
 		Decree: decree,
 		Priest: the_Priest.Id,
 	}
-	var err error
 	voteds := make([]*pb.Voted, len(p.Messenger.Destination))
 	for k, v := range p.Messenger.Destination {
 		voteds[k], err = p.Messenger.sendBallot(v, beginBallot)
@@ -103,11 +126,11 @@ func (p *Priest) dealPreBallot(id uint32, decree string) {
 	if len(voteds) != len(p.Messenger.Destination) {
 		return
 	}
-	the_Priest.dealBallot(id, decree)
+	the_Priest.dealBallotResponse(id, decree)
 }
 
-func (p *Priest) dealBallot(id uint32, decree string) {
-	err := insertLegerItem(LegerItem{
+func (p *Priest) dealBallotResponse(id uint32, decree string) {
+	err := the_Priest.Leger.addItem(LegerItem{
 		Id:     id,
 		Decree: decree,
 		Priest: the_Priest.Id,
@@ -132,10 +155,6 @@ func (p *Priest) dealBallot(id uint32, decree string) {
 	if count == len(p.Messenger.Destination) {
 		fmt.Println("Add a new decree....")
 	}
-}
-
-func (p *Priest) dealRecordDecree() {
-
 }
 
 func (p *Priest) genreateBallotId() uint32 {

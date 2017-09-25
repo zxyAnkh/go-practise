@@ -52,6 +52,10 @@ func (l *Leger) addItem(item LegerItem) error {
 	if exists, _ := l.containsItem(item); exists == true {
 		return fmt.Errorf("Item %v is exists.\n", item)
 	}
+	err := insertLegerItem(item)
+	if err != nil {
+		return err
+	}
 	length := len(l.Items)
 	if length == 0 {
 		l.Items = make([]LegerItem, 5)
@@ -62,7 +66,7 @@ func (l *Leger) addItem(item LegerItem) error {
 		copy(newItems, l.Items)
 		l.Items = newItems
 	}
-	l.Items[length+1] = item
+	l.Items[length] = item
 	return nil
 }
 
