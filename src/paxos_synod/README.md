@@ -1,6 +1,6 @@
 ## Paxos synod
 -------------------------
-这是根据[Lamport-paxos](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/12/The-Part-Time-Parliament.pdf)论文描述的Go语言实现版本。
+这是根据[The part time parliament](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/12/The-Part-Time-Parliament.pdf)论文描述的Go语言实现版本。
 在docs目录下，有该论文的翻译版本。
 
 主要用到的技术分别是 [Redis](https://redis.io/commands), [Protobuf](https://developers.google.com/protocol-buffers/), [gRPC](https://grpc.io/docs/quickstart/go.html)，具体的使用可以参考各自的官网。
